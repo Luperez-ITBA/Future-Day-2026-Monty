@@ -1,10 +1,9 @@
 import streamlit as st
 import random
-from PIL import Image
 import matplotlib.pyplot as plt
 
 # Configuración de la página
-st.set_page_config(page_title="Monty Hall - ITBA", layout="wide")
+st.set_page_config(page_title="Monty Hall - ITBA", layout="wide", initial_sidebar_state="collapsed")
 
 # --- MEMORIA DEL JUEGO Y ESTADÍSTICAS ---
 if 'etapa' not in st.session_state:
@@ -16,151 +15,176 @@ if 'etapa' not in st.session_state:
     st.session_state.stats_cambiar = {'intentos': 0, 'exitos': 0}
     st.session_state.lanzar_festejo = False
 
-# --- BARRA LATERAL ---
-with st.sidebar:
-    try:
-        st.image('logo_itba.png', use_container_width=True)
-    except:
-        st.write("ITBA - Future Day")
+# --- ESTILOS CSS UNIFICADOS ---
+st.markdown("""
+    <style>
+    /* Fondo principal */
+    .main { background-color: #f8fafc; }
     
-    st.header("Controles")
-    if st.button("🔄 Reiniciar Juego Actual"):
+    /* Clase para agrandar el texto de la explicación y darle estilo de caja destacada */
+    .texto-grande {
+        font-size: 22px !important;
+        line-height: 1.6;
+        color: #1e293b;
+        background-color: #e2e8f0;
+        padding: 25px;
+        border-radius: 12px;
+        border-left: 8px solid #0074D9;
+        margin-bottom: 25px;
+    }
+    
+    /* Botón de navegación al Hub */
+    .btn-nav {
+        display: block;
+        width: 100%;
+        padding: 12px 0;
+        background-color: #001f3f;
+        color: #ffffff !important;
+        text-align: center;
+        border-radius: 10px;
+        text-decoration: none !important;
+        font-weight: 600;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-top: 30px;
+    }
+    .btn-nav:hover, .btn-nav:visited, .btn-nav:active {
+        text-decoration: none !important;
+        color: white !important;
+    }
+    .btn-nav:hover {
+        background-color: #0074D9;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- CABECERA Y CONTROLES (Reemplaza a la antigua sidebar) ---
+col_logo, col_titulo, col_reinicio = st.columns([1, 3, 1])
+
+with col_logo:
+    try:
+        st.image('logo_itba.png', width=150)
+    except:
+        st.write("### ITBA")
+
+with col_titulo:
+    st.title("🎁 El Dilema de Monty Hall")
+
+with col_reinicio:
+    st.write("") # Espaciador para alinear
+    if st.button("🔄 Reiniciar Juego Actual", use_container_width=True):
         st.session_state.etapa = 'inicio'
         st.session_state.lanzar_festejo = False
         st.rerun()
-        
-    if st.button("🗑️ Borrar Estadísticas"):
-        st.session_state.stats_quedarse = {'intentos': 0, 'exitos': 0}
-        st.session_state.stats_cambiar = {'intentos': 0, 'exitos': 0}
-        st.rerun()
 
-# --- CUERPO PRINCIPAL ---
-st.title("🚪 El Dilema de Monty Hall")
 st.write("---")
 
-st.markdown("""
-* Detrás de una de las puertas se esconde un **tesoro**, detrás de las otras dos un **triste rabanito**.
-* Te dejan elegir una de las tres puertas.
-* Luego de tu elección, te muestran detrás de una de las otras dos, donde había un rabanito.
-* Te dan a elegir: **quedarte con tu elección original o cambiar de puerta**.
-* ¿Qué conviene? ¿Quedarnos con nuestra elección original? ¿Cambiar? ¿Da lo mismo?
-""")
-st.write("---")
-
-tab1, tab2, tab3 = st.tabs(["🎮 ¡A Jugar!", "📊 Simulación y Estrategias", "🧠 Explicación Teórica"])
+# --- SISTEMA DE PESTAÑAS ---
+tab1, tab2, tab3 = st.tabs(["🚪 El Juego", "📊 Estadísticas", "🧠 Matemática"])
 
 with tab1:
-    if st.session_state.etapa == 'inicio':
-        puertas = [0, 0, 0]
-        puertas[random.randint(0, 2)] = 1 
-        st.session_state.puertas = puertas
-        st.session_state.lanzar_festejo = False
-        st.subheader("Elegí una puerta. ¡Buscá el tesoro!")
+    # Explicación con el CSS aplicado y la corrección de redacción
+    st.markdown("""
+    <div class="texto-grande">
+        Imaginá que estás en un programa de televisión. Tienes que elegir una de las tres puertas. 
+        Detrás de una de ellas hay un auto 0KM (el Tesoro), y detrás de las otras dos hay cabras (o rabanitos).<br><br>
+        Una vez que eliges, el presentador (Monty), que sabe qué hay detrás de cada puerta, abre una de las otras dos 
+        que tiene una cabra. Luego te pregunta: <b>¿Quieres quedarte con tu opción original o quieres cambiar a la puerta restante?</b>
+    </div>
+    """, unsafe_allow_html=True)
     
-    spacer_l, c1, c2, c3, spacer_r = st.columns([1, 2, 2, 2, 1])
-    cols = [c1, c2, c3]
-
-    for i in range(3):
-        with cols[i]:
-            st.write(f"### Puerta {i+1}")
-            if st.session_state.etapa == 'inicio':
-                st.image('puerta_cerrada.jpg', use_container_width=True)
-                if st.button(f"Elegir Puerta {i+1}", key=f"btn_{i}"):
+    if st.session_state.etapa == 'inicio':
+        if st.button("▶️ Iniciar Nuevo Juego", type="primary"):
+            st.session_state.puertas = [0, 0, 0]
+            st.session_state.puertas[random.randint(0, 2)] = 1
+            st.session_state.etapa = 'eleccion'
+            st.rerun()
+            
+    elif st.session_state.etapa == 'eleccion':
+        st.subheader("Elige una puerta:")
+        col1, col2, col3 = st.columns(3)
+        
+        for i, col in enumerate([col1, col2, col3]):
+            with col:
+                if st.button(f"🚪 Puerta {i+1}", use_container_width=True):
                     st.session_state.eleccion_usuario = i
+                    
+                    # Monty abre una puerta
                     opciones_monty = [j for j in range(3) if j != i and st.session_state.puertas[j] == 0]
                     st.session_state.puerta_abierta_monty = random.choice(opciones_monty)
-                    st.session_state.etapa = 'decision'
+                    
+                    st.session_state.etapa = 'cambio'
                     st.rerun()
-            elif st.session_state.etapa == 'decision':
-                if i == st.session_state.puerta_abierta_monty:
-                    st.image('premio_cabra.png', use_container_width=True)
-                    st.caption("¡Acá había un rabanito!")
-                elif i == st.session_state.eleccion_usuario:
-                    st.image('puerta_cerrada.jpg', use_container_width=True)
-                    st.info("Tu elección")
-                else:
-                    st.image('puerta_cerrada.jpg', use_container_width=True)
-            elif st.session_state.etapa == 'resultado':
-                if st.session_state.puertas[i] == 1:
-                    st.image('premio_auto.png', use_container_width=True)
-                else:
-                    st.image('premio_cabra.png', use_container_width=True)
-
-    if st.session_state.etapa == 'decision':
-        st.write("---")
-        st.subheader(f"Elegiste la Puerta {st.session_state.eleccion_usuario + 1}. Monty abrió la Puerta {st.session_state.puerta_abierta_monty + 1}.")
-        col_b1, col_b2 = st.columns(2)
-        with col_b1:
-            if st.button("Me quedo con la mía"):
+                    
+    elif st.session_state.etapa == 'cambio':
+        st.subheader(f"Elegiste la Puerta {st.session_state.eleccion_usuario + 1}.")
+        st.info(f"Monty abre la Puerta {st.session_state.puerta_abierta_monty + 1} y revela un rabanito 🥕.")
+        st.warning("¿Qué decides hacer?")
+        
+        puerta_restante = [j for j in range(3) if j != st.session_state.eleccion_usuario and j != st.session_state.puerta_abierta_monty][0]
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button(f"✊ Quedarme con la Puerta {st.session_state.eleccion_usuario + 1}", use_container_width=True):
+                st.session_state.stats_quedarse['intentos'] += 1
                 if st.session_state.puertas[st.session_state.eleccion_usuario] == 1:
+                    st.session_state.stats_quedarse['exitos'] += 1
                     st.session_state.lanzar_festejo = True
                 st.session_state.etapa = 'resultado'
+                st.session_state.eleccion_final = st.session_state.eleccion_usuario
                 st.rerun()
-        with col_b2:
-            if st.button("¡Sí, quiero cambiar!"):
-                nueva = [j for j in range(3) if j != st.session_state.eleccion_usuario and j != st.session_state.puerta_abierta_monty][0]
-                st.session_state.eleccion_usuario = nueva
-                if st.session_state.puertas[st.session_state.eleccion_usuario] == 1:
+        with col2:
+            if st.button(f"🔄 Cambiar a la Puerta {puerta_restante + 1}", type="primary", use_container_width=True):
+                st.session_state.stats_cambiar['intentos'] += 1
+                if st.session_state.puertas[puerta_restante] == 1:
+                    st.session_state.stats_cambiar['exitos'] += 1
                     st.session_state.lanzar_festejo = True
                 st.session_state.etapa = 'resultado'
+                st.session_state.eleccion_final = puerta_restante
                 st.rerun()
-
-    if st.session_state.etapa == 'resultado':
+                
+    elif st.session_state.etapa == 'resultado':
         if st.session_state.lanzar_festejo:
             st.balloons()
-            st.session_state.lanzar_festejo = False
-        st.write("---")
-        if st.session_state.puertas[st.session_state.eleccion_usuario] == 1:
-            st.success("🎉 ¡Felicidades! Encontraste el Tesoro.")
+            st.success(f"¡GANASTE! 🎉 El tesoro estaba en la Puerta {st.session_state.eleccion_final + 1}.")
         else:
-            st.error("😢 ¡Mala suerte! Es solo un triste rabanito.")
-        st.button("Jugar otra vez", on_click=lambda: st.session_state.update(etapa='inicio'))
+            puerta_ganadora = [i for i, x in enumerate(st.session_state.puertas) if x == 1][0] + 1
+            st.error(f"Perdiste. 🥕 El tesoro estaba en la Puerta {puerta_ganadora}.")
+            
+        if st.button("▶️ Jugar de Nuevo", type="primary"):
+            st.session_state.etapa = 'inicio'
+            st.session_state.lanzar_festejo = False
+            st.rerun()
 
 with tab2:
-    st.subheader("Simulación de Estrategias")
-    st.write("Simulá juegos para ver cuál estrategia gana más veces en el largo plazo.")
+    st.subheader("Tus Estadísticas Históricas")
     
-    if st.button("🏃 Simular 10 juegos"):
-        for _ in range(10):
-            p_q, e_q = random.randint(0, 2), random.randint(0, 2)
-            st.session_state.stats_quedarse['intentos'] += 1
-            if p_q == e_q: st.session_state.stats_quedarse['exitos'] += 1
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("### Estrategia: Quedarse")
+        intentos = st.session_state.stats_quedarse['intentos']
+        exitos = st.session_state.stats_quedarse['exitos']
+        st.metric("Partidas Jugadas", intentos)
+        st.metric("Victorias", exitos)
+        if intentos > 0:
+            st.metric("Efectividad", f"{(exitos/intentos)*100:.1f}%")
+        else:
+            st.metric("Efectividad", "0.0%")
             
-            p_c, e_c = random.randint(0, 2), random.randint(0, 2)
-            st.session_state.stats_cambiar['intentos'] += 1
-            if p_c != e_c: st.session_state.stats_cambiar['exitos'] += 1
-
-    total_q = st.session_state.stats_quedarse['intentos']
-    total_c = st.session_state.stats_cambiar['intentos']
-    prop_q = st.session_state.stats_quedarse['exitos'] / total_q if total_q > 0 else 0
-    prop_c = st.session_state.stats_cambiar['exitos'] / total_c if total_c > 0 else 0
-
-    col_graf, _ = st.columns([0.6, 0.4])
-    with col_graf:
-        fig, ax = plt.subplots(figsize=(5, 3)) 
-        ax.bar(['Quedarse', 'Cambiar'], [prop_q, prop_c], color=['#e74c3c', '#2ecc71'])
-        ax.set_ylim(0, 1)
-        ax.axhline(0.33, color='black', linestyle='--', alpha=0.3)
-        ax.axhline(0.66, color='black', linestyle='--', alpha=0.3)
-        ax.set_ylabel("Proporción de Éxito")
-        st.pyplot(fig)
-    
-    st.info("""
-    💡 **Análisis de la simulación:**
-    * Una vez que abrieron la tercera puerta, sabemos que en una de las puertas cerradas está el tesoro y en la otra el rabanito.
-    * Tenemos una probabilidad de ganar de 50% con cualquier elección...
-    * Sin embargo, el gráfico nos muestra claramente por la experiencia que **conviene cambiar la elección**.
-    * Esto se debe a que cambiar **duplica las probabilidades de ganar**. 
-    * **¿Por qué pasa esto?** Podés encontrar la respuesta en la siguiente pestaña.
-    """)
+    with col2:
+        st.markdown("### Estrategia: Cambiar")
+        intentos_c = st.session_state.stats_cambiar['intentos']
+        exitos_c = st.session_state.stats_cambiar['exitos']
+        st.metric("Partidas Jugadas", intentos_c)
+        st.metric("Victorias", exitos_c)
+        if intentos_c > 0:
+            st.metric("Efectividad", f"{(exitos_c/intentos_c)*100:.1f}%")
+        else:
+            st.metric("Efectividad", "0.0%")
 
 with tab3:
-    st.subheader("🎓 El Veredicto de la Probabilidad Condicional")
-    
-    st.markdown("""
-    El concepto clave para entender este resultado es la **Probabilidad Condicional**, que se define como:
-    """)
-    st.latex(r"P(A|B) = \frac{P(A \cap B)}{P(B)}")
+    st.subheader("La Matemática detrás del Juego")
     
     st.markdown("""
     ### La Información de Monty
@@ -179,8 +203,10 @@ with tab3:
     
     st.markdown("Donde el denominador (Probabilidad Total) se expande como:")
     st.latex(r"P(2_A) = P(2_A|1_T)P(1_T) + P(2_A|2_T)P(2_T) + P(2_A|3_T)P(3_T)")
-    
-    st.markdown("Sustituyendo los valores de nuestro caso:")
-    st.latex(r"P(1_T | 2_A) = \frac{\frac{1}{2} \cdot \frac{1}{3}}{\frac{1}{2}\cdot\frac{1}{3} + 0\cdot\frac{1}{3} + 1\cdot\frac{1}{3}} = \frac{1/6}{3/6} = \frac{1}{3}")
-    
-    st.success("Esto demuestra que nuestra puerta inicial sigue teniendo **1/3** de probabilidad, por lo que la puerta restante necesariamente tiene **2/3**. ¡Siempre conviene cambiar!")
+    st.markdown("Al resolverlo matemáticamente, obtenemos que $P(1_T | 2_A) = 1/3$, mientras que la probabilidad de ganar cambiando de puerta asciende a **2/3**. ¡Por eso siempre conviene cambiar!")
+
+# --- BOTÓN DE RETORNO AL HUB ---
+st.write("---")
+col_vacia1, col_boton_regreso, col_vacia2 = st.columns([1, 1, 1])
+with col_boton_regreso:
+    st.markdown('<a href="https://future-day-2026-hub.streamlit.app/" target="_blank" class="btn-nav">🔙 Volver al Hub Principal</a>', unsafe_allow_html=True)
