@@ -53,11 +53,10 @@ st.markdown("""
         }
     }
     
-    /* SOLUCIÓN AL ALINEADO: Fuerza a las imágenes a centrarse perfectamente sobre el botón */
-    [data-testid="stImage"] img {
-        display: block !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
+    /* SOLUCIÓN DEFINITIVA AL ALINEADO: Flexbox sobre el contenedor de la imagen */
+    div[data-testid="stImage"] {
+        display: flex !important;
+        justify-content: center !important;
     }
     
     /* Centra también los títulos H3 de las puertas para una simetría total */
@@ -248,7 +247,7 @@ with tab3:
     st.latex(r"P(1_T | 2_A) = \frac{P(2_A | 1_T) P(1_T)}{P(2_A)}")
     
     st.markdown("Donde el denominador (Probabilidad Total) se expande como:")
-    st.latex(r"P(2_A) = P(2_A|1_T)P(1_T) + P(2_A|2_T)P(2_T) + P(2_A|3_T)P(3...}")
+    st.latex(r"P(2_A) = P(2_A|1_T)P(1_T) + P(2_A|2_T)P(2_T) + P(2_A|3_T)P(3_T)")
     
     st.markdown("Sustituyendo los valores de nuestro caso:")
     st.latex(r"P(1_T | 2_A) = \frac{\frac{1}{2} \cdot \frac{1}{3}}{\frac{1}{2}\cdot\frac{1}{3} + 0\cdot\frac{1}{3} + 1\cdot\frac{1}{3}} = \frac{1/6}{3/6} = \frac{1}{3}")
