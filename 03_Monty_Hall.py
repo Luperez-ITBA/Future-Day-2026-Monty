@@ -52,6 +52,12 @@ st.markdown("""
             padding: 15px !important; 
         }
     }
+    
+    /* Fix para centrar las imágenes pequeñas dentro de las columnas */
+    [data-testid="stVerticalBlock"] > div[data-testid="stColumn"] [data-testid="stImage"] {
+        display: flex;
+        justify-content: center;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -107,15 +113,15 @@ with tab1:
         st.session_state.lanzar_festejo = False
         st.subheader("Elegí una puerta. ¡Buscá el tesoro!")
     
-    # Cambio a 3 columnas directas para evitar bugs visuales en celular
     c1, c2, c3 = st.columns(3)
     cols = [c1, c2, c3]
 
     for i in range(3):
         with cols[i]:
             st.write(f"### Puerta {i+1}")
+            # Tamaño definido a 180px y CSS para centrar (arriba) para achicarlas
             if st.session_state.etapa == 'inicio':
-                st.image('puerta_cerrada.jpg', use_container_width=True)
+                st.image('puerta_cerrada.jpg', width=180)
                 if st.button(f"Elegir Puerta {i+1}", key=f"btn_{i}", use_container_width=True):
                     st.session_state.eleccion_usuario = i
                     opciones_monty = [j for j in range(3) if j != i and st.session_state.puertas[j] == 0]
@@ -124,18 +130,18 @@ with tab1:
                     st.rerun()
             elif st.session_state.etapa == 'decision':
                 if i == st.session_state.puerta_abierta_monty:
-                    st.image('premio_cabra.png', use_container_width=True)
+                    st.image('premio_cabra.png', width=180)
                     st.caption("¡Acá había un rabanito!")
                 elif i == st.session_state.eleccion_usuario:
-                    st.image('puerta_cerrada.jpg', use_container_width=True)
+                    st.image('puerta_cerrada.jpg', width=180)
                     st.info("Tu elección")
                 else:
-                    st.image('puerta_cerrada.jpg', use_container_width=True)
+                    st.image('puerta_cerrada.jpg', width=180)
             elif st.session_state.etapa == 'resultado':
                 if st.session_state.puertas[i] == 1:
-                    st.image('premio_auto.png', use_container_width=True)
+                    st.image('premio_auto.png', width=180)
                 else:
-                    st.image('premio_cabra.png', use_container_width=True)
+                    st.image('premio_cabra.png', width=180)
 
     if st.session_state.etapa == 'decision':
         st.write("---")
