@@ -16,7 +16,7 @@ if 'etapa' not in st.session_state:
     st.session_state.stats_cambiar = {'intentos': 0, 'exitos': 0}
     st.session_state.lanzar_festejo = False
 
-# --- ESTILOS CSS RESPONSIVOS Y DE ALINEACIÓN ---
+# --- ESTILOS CSS RESPONSIVOS ---
 st.markdown("""
     <style>
     /* Clases para los recuadros de texto */
@@ -51,17 +51,6 @@ st.markdown("""
             font-size: 15px !important; 
             padding: 15px !important; 
         }
-    }
-    
-    /* SOLUCIÓN DEFINITIVA AL ALINEADO: Flexbox sobre el contenedor de la imagen */
-    div[data-testid="stImage"] {
-        display: flex !important;
-        justify-content: center !important;
-    }
-    
-    /* Centra también los títulos H3 de las puertas para una simetría total */
-    div[data-testid="stColumn"] h3 {
-        text-align: center !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -126,7 +115,8 @@ with tab1:
             st.write(f"### Puerta {i+1}")
             if st.session_state.etapa == 'inicio':
                 st.image('puerta_cerrada.jpg', width=180)
-                if st.button(f"Elegir Puerta {i+1}", key=f"btn_{i}", use_container_width=True):
+                # Quitamos el use_container_width para que el botón sea natural y se alinee a la izquierda
+                if st.button(f"Elegir Puerta {i+1}", key=f"btn_{i}"):
                     st.session_state.eleccion_usuario = i
                     opciones_monty = [j for j in range(3) if j != i and st.session_state.puertas[j] == 0]
                     st.session_state.puerta_abierta_monty = random.choice(opciones_monty)
@@ -135,7 +125,7 @@ with tab1:
             elif st.session_state.etapa == 'decision':
                 if i == st.session_state.puerta_abierta_monty:
                     st.image('premio_cabra.png', width=180)
-                    st.caption("<p style='text-align: center; margin: 0;'>¡Acá había un rabanito!</p>", unsafe_allow_html=True)
+                    st.caption("¡Acá había un rabanito!")
                 elif i == st.session_state.eleccion_usuario:
                     st.image('puerta_cerrada.jpg', width=180)
                     st.info("Tu elección")
