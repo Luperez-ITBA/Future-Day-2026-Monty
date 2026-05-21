@@ -16,7 +16,7 @@ if 'etapa' not in st.session_state:
     st.session_state.stats_cambiar = {'intentos': 0, 'exitos': 0}
     st.session_state.lanzar_festejo = False
 
-# --- ESTILOS CSS RESPONSIVOS ---
+# --- ESTILOS CSS RESPONSIVOS Y DE ALINEACIÓN ---
 st.markdown("""
     <style>
     /* Clases para los recuadros de texto */
@@ -53,10 +53,16 @@ st.markdown("""
         }
     }
     
-    /* Fix para centrar las imágenes pequeñas dentro de las columnas */
-    [data-testid="stVerticalBlock"] > div[data-testid="stColumn"] [data-testid="stImage"] {
-        display: flex;
-        justify-content: center;
+    /* SOLUCIÓN AL ALINEADO: Fuerza a las imágenes a centrarse perfectamente sobre el botón */
+    [data-testid="stImage"] img {
+        display: block !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+    
+    /* Centra también los títulos H3 de las puertas para una simetría total */
+    div[data-testid="stColumn"] h3 {
+        text-align: center !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -95,7 +101,7 @@ st.markdown("""
 
 * Detrás de una de las puertas se esconde un **tesoro**, detrás de las otras dos un **triste rabanito**.
 * Te dejan elegir una de las tres puertas.
-* Luego de tu elección, te muestran detrás de una de las otras dos, donde había un rabanito.
+* Luego de tu elección, te muestran detrás de una de las antes dos, donde había un rabanito.
 * Te dan a elegir: **quedarte con tu opción original o cambiar de puerta**.
 * ¿Qué conviene? ¿Quedarnos con nuestra opción original? ¿Cambiar? ¿Da lo mismo?
 
@@ -119,7 +125,6 @@ with tab1:
     for i in range(3):
         with cols[i]:
             st.write(f"### Puerta {i+1}")
-            # Tamaño definido a 180px y CSS para centrar (arriba) para achicarlas
             if st.session_state.etapa == 'inicio':
                 st.image('puerta_cerrada.jpg', width=180)
                 if st.button(f"Elegir Puerta {i+1}", key=f"btn_{i}", use_container_width=True):
@@ -131,7 +136,7 @@ with tab1:
             elif st.session_state.etapa == 'decision':
                 if i == st.session_state.puerta_abierta_monty:
                     st.image('premio_cabra.png', width=180)
-                    st.caption("¡Acá había un rabanito!")
+                    st.caption("<p style='text-align: center; margin: 0;'>¡Acá había un rabanito!</p>", unsafe_allow_html=True)
                 elif i == st.session_state.eleccion_usuario:
                     st.image('puerta_cerrada.jpg', width=180)
                     st.info("Tu elección")
@@ -212,7 +217,7 @@ with tab2:
     """)
 
 with tab3:
-    # RECUADRO DESTACADO PRIMERO (Con fix de espaciado)
+    # RECUADRO DESTACADO PRIMERO
     st.markdown("""
     <div class="info-monty">
     
@@ -243,7 +248,7 @@ with tab3:
     st.latex(r"P(1_T | 2_A) = \frac{P(2_A | 1_T) P(1_T)}{P(2_A)}")
     
     st.markdown("Donde el denominador (Probabilidad Total) se expande como:")
-    st.latex(r"P(2_A) = P(2_A|1_T)P(1_T) + P(2_A|2_T)P(2_T) + P(2_A|3_T)P(3_T)")
+    st.latex(r"P(2_A) = P(2_A|1_T)P(1_T) + P(2_A|2_T)P(2_T) + P(2_A|3_T)P(3...}")
     
     st.markdown("Sustituyendo los valores de nuestro caso:")
     st.latex(r"P(1_T | 2_A) = \frac{\frac{1}{2} \cdot \frac{1}{3}}{\frac{1}{2}\cdot\frac{1}{3} + 0\cdot\frac{1}{3} + 1\cdot\frac{1}{3}} = \frac{1/6}{3/6} = \frac{1}{3}")
