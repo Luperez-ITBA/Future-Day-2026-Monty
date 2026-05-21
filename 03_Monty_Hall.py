@@ -168,13 +168,11 @@ with tab2:
 with tab3:
     st.subheader("🎓 El Veredicto de la Probabilidad Condicional")
     
+    # NUEVO RECUADRO DESTACADO PRIMERO: La información de Monty
     st.markdown("""
-    El concepto clave para entender este resultado es la **Probabilidad Condicional**, que se define como:
-    """)
-    st.latex(r"P(A|B) = \frac{P(A \cap B)}{P(B)}")
+    <div style="font-size: 18px; line-height: 1.6; background-color: #e2e8f0; padding: 25px; border-radius: 12px; border-left: 8px solid #0074D9; margin-bottom: 25px;">
     
-    st.markdown("""
-    ### La Información de Monty
+    ### 💡 La Información de Monty
     Hay que notar que la **información** que nos da Monty al abrir una puerta no es solamente que hay un rabanito tras ella. 
     La información real es que **Monty abrió esa puerta específica y NO abrió la otra**. 
 
@@ -182,6 +180,15 @@ with tab3:
     * Si el tesoro hubiera estado detrás de la Puerta 2, Monty **NUNCA** la hubiera abierto. 
     * Esa es la información que sesga la probabilidad en favor del cambio.
     
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    El concepto clave para entender este resultado es la **Probabilidad Condicional**, que se define como:
+    """)
+    st.latex(r"P(A|B) = \frac{P(A \cap B)}{P(B)}")
+    
+    st.markdown("""
     ### El Cálculo Matemático
     Usando el **Teorema de Bayes** y la **Ley de Probabilidad Total**, podemos calcular la probabilidad de que el tesoro esté en nuestra puerta original ($1_T$) dado que Monty abrió la 2 ($2_A$):
     """)
