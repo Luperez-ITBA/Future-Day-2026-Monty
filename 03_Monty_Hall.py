@@ -16,6 +16,45 @@ if 'etapa' not in st.session_state:
     st.session_state.stats_cambiar = {'intentos': 0, 'exitos': 0}
     st.session_state.lanzar_festejo = False
 
+# --- ESTILOS CSS RESPONSIVOS ---
+st.markdown("""
+    <style>
+    /* Clases para los recuadros de texto */
+    .texto-destacado {
+        font-size: 22px; 
+        line-height: 1.6; 
+        background-color: #e2e8f0; 
+        padding: 25px; 
+        border-radius: 12px; 
+        border-left: 8px solid #0074D9; 
+        margin-bottom: 25px;
+    }
+    .info-monty {
+        font-size: 18px; 
+        line-height: 1.6; 
+        background-color: #e2e8f0; 
+        padding: 25px; 
+        border-radius: 12px; 
+        border-left: 8px solid #0074D9; 
+        margin-bottom: 25px;
+        display: inline-block;
+        width: 100%;
+    }
+    
+    /* Adaptación automática para celulares */
+    @media (max-width: 768px) {
+        .texto-destacado { 
+            font-size: 17px !important; 
+            padding: 15px !important; 
+        }
+        .info-monty { 
+            font-size: 15px !important; 
+            padding: 15px !important; 
+        }
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- CABECERA Y CONTROLES ---
 col_logo, col_titulo, col_reinicio = st.columns([1, 3, 2])
 
@@ -44,9 +83,9 @@ with col_reinicio:
 
 st.write("---")
 
-# Explicación con el texto original conservado, fuente aumentada y palabra cambiada
+# Explicación con la clase responsiva aplicada
 st.markdown("""
-<div style="font-size: 22px; line-height: 1.6; background-color: #e2e8f0; padding: 25px; border-radius: 12px; border-left: 8px solid #0074D9; margin-bottom: 25px;">
+<div class="texto-destacado">
 
 * Detrás de una de las puertas se esconde un **tesoro**, detrás de las otras dos un **triste rabanito**.
 * Te dejan elegir una de las tres puertas.
@@ -68,7 +107,8 @@ with tab1:
         st.session_state.lanzar_festejo = False
         st.subheader("Elegí una puerta. ¡Buscá el tesoro!")
     
-    spacer_l, c1, c2, c3, spacer_r = st.columns([1, 2, 2, 2, 1])
+    # Cambio a 3 columnas directas para evitar bugs visuales en celular
+    c1, c2, c3 = st.columns(3)
     cols = [c1, c2, c3]
 
     for i in range(3):
@@ -76,7 +116,7 @@ with tab1:
             st.write(f"### Puerta {i+1}")
             if st.session_state.etapa == 'inicio':
                 st.image('puerta_cerrada.jpg', use_container_width=True)
-                if st.button(f"Elegir Puerta {i+1}", key=f"btn_{i}"):
+                if st.button(f"Elegir Puerta {i+1}", key=f"btn_{i}", use_container_width=True):
                     st.session_state.eleccion_usuario = i
                     opciones_monty = [j for j in range(3) if j != i and st.session_state.puertas[j] == 0]
                     st.session_state.puerta_abierta_monty = random.choice(opciones_monty)
@@ -102,13 +142,13 @@ with tab1:
         st.subheader(f"Elegiste la Puerta {st.session_state.eleccion_usuario + 1}. Monty abrió la Puerta {st.session_state.puerta_abierta_monty + 1}.")
         col_b1, col_b2 = st.columns(2)
         with col_b1:
-            if st.button("Me quedo con la mía"):
+            if st.button("Me quedo con la mía", use_container_width=True):
                 if st.session_state.puertas[st.session_state.eleccion_usuario] == 1:
                     st.session_state.lanzar_festejo = True
                 st.session_state.etapa = 'resultado'
                 st.rerun()
         with col_b2:
-            if st.button("¡Sí, quiero cambiar!"):
+            if st.button("¡Sí, quiero cambiar!", use_container_width=True):
                 nueva = [j for j in range(3) if j != st.session_state.eleccion_usuario and j != st.session_state.puerta_abierta_monty][0]
                 st.session_state.eleccion_usuario = nueva
                 if st.session_state.puertas[st.session_state.eleccion_usuario] == 1:
@@ -125,7 +165,7 @@ with tab1:
             st.success("🎉 ¡Felicidades! Encontraste el Tesoro.")
         else:
             st.error("😢 ¡Mala suerte! Es solo un triste rabanito.")
-        st.button("Jugar otra vez", on_click=lambda: st.session_state.update(etapa='inicio'))
+        st.button("Jugar otra vez", on_click=lambda: st.session_state.update(etapa='inicio'), use_container_width=True)
 
 with tab2:
     st.subheader("Simulación de Estrategias")
@@ -154,7 +194,7 @@ with tab2:
         ax.axhline(0.33, color='black', linestyle='--', alpha=0.3)
         ax.axhline(0.66, color='black', linestyle='--', alpha=0.3)
         ax.set_ylabel("Proporción de Éxito")
-        st.pyplot(fig)
+        st.pyplot(fig, use_container_width=True)
     
     st.info("""
     💡 **Análisis de la simulación:**
@@ -166,11 +206,9 @@ with tab2:
     """)
 
 with tab3:
-    st.subheader("🎓 El Veredicto de la Probabilidad Condicional")
-    
-    # NUEVO RECUADRO DESTACADO PRIMERO: La información de Monty
+    # RECUADRO DESTACADO PRIMERO (Con fix de espaciado)
     st.markdown("""
-    <div style="font-size: 18px; line-height: 1.6; background-color: #e2e8f0; padding: 25px; border-radius: 12px; border-left: 8px solid #0074D9; margin-bottom: 25px;">
+    <div class="info-monty">
     
     ### 💡 La Información de Monty
     Hay que notar que la **información** que nos da Monty al abrir una puerta no es solamente que hay un rabanito tras ella. 
@@ -181,7 +219,10 @@ with tab3:
     * Esa es la información que sesga la probabilidad en favor del cambio.
     
     </div>
+    <br><br>
     """, unsafe_allow_html=True)
+    
+    st.subheader("🎓 El Veredicto de la Probabilidad Condicional")
     
     st.markdown("""
     El concepto clave para entender este resultado es la **Probabilidad Condicional**, que se define como:
